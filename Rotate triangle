@@ -1,0 +1,56 @@
+
+#include "stdafx.h"
+#include<GL/glut.h>
+#include<stdio.h>
+float angle,x,y;
+void init()
+{
+	glClearColor(1,1,1,0);
+	gluOrtho2D(-100,100,-100,100);
+}
+void triangle()
+{
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(10,10);
+	glVertex2f(50,10);
+	glVertex2f(30,45);
+	glEnd();
+}
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(0,0,0);
+	glBegin(GL_LINES);
+	glVertex2f(-100,0);
+	glVertex2f(100,0);
+	glVertex2f(0,-100);
+	glVertex2f(0,100);
+	glEnd();
+	glColor3f(0,0,1);
+	triangle();
+	glPushMatrix();
+	glRotatef(angle,0,0,1);
+	glColor3f(0,1,0);
+	triangle();
+	glPopMatrix();
+	glTranslatef(x,y,0);
+	glRotatef(angle,0,0,1);
+	glTranslatef(-x,-y,0);
+	glColor3f(1,0,0);
+	triangle();
+	glFlush();
+}
+void main()
+	{
+		printf("enter the angle\n");
+		scanf("%f",&angle);
+		printf("enter the fixed point\n");
+		scanf("%f%f",&x,&y);
+		glutInitDisplayMode(GLUT_SINGLE);
+		glutInitWindowSize(600,600);
+		glutInitWindowPosition(50,50);
+		glutCreateWindow("Transformation");
+		init();
+		glutDisplayFunc(display);
+		glutMainLoop();
+}
