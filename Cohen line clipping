@@ -1,0 +1,132 @@
+#include "stdafx.h"
+#include<stdio.h>
+#include<gl/glut.h>
+
+int TOP=8,BOTTOM=4,RIGHT=2,LEFT=1,xvmin=100,yvmin=100,xvmax=250,yvmax=250,click=0,accept=0;
+float x1,y1,x2,y2;
+void init()
+{
+		glClearColor(1,1,1,1);
+		gluOrtho2D(0,400,0,400);
+}
+int compute(float x,float y)
+{
+		int code=0;
+		if(x<xvmin)
+			code=LEFT;
+		if(x>xvmax)
+			code=RIGHT;
+		if(y<yvmin)
+			code=BOTTOM;
+		if(y>yvmax)
+			code=TOP;
+		return code;
+}
+void mouse(int button,int state,int x,int y)
+{
+	if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
+		click=1;
+	glutPostRedisplay();
+}
+void cohen()
+{
+		int code_p,code_q,finish=0,code=0;
+		float x=0,y=0;
+		code_p=compute(x1,y1);
+		code_q=compute(x2,y2);
+		do{
+			if(!(code_p|code_q))
+			{
+				accept=1;
+				finish=1;
+			}
+			if(code_p&code_q)
+			{
+				finish=1;
+				x1=x2=y1=y2=0;
+			}
+			
+				
+			if(!finish)
+			{
+				if(code==code_p)
+					code=code_q;
+				else
+					code=code_p;
+				if(code&TOP)
+				{
+					y=yvmax;
+					x=x1+((x2-x1)/(y2-y1))*(yvmax-y1);
+				}
+				if(code&BOTTOM)
+				{
+					y=yvmin;
+					x=x1+((x2-x1)/(y2-y1))*(yvmin-y1);
+				}
+				if(code&RIGHT)
+				{
+					x=xvmax;
+					y=y1+((y2-y1)/(x2-x1))*(xvmax-x1);
+				}
+				if(code&LEFT)
+				{
+					x=xvmin;
+					y=y1+((y2-y1)/(x2-x1))*(xvmin-x1);
+				}
+		
+				if(code==code_p)
+				{
+					x1=x;
+					y1=y;
+					code_p=compute(x1,y1);
+				}
+				if(code==code_q)
+				{
+					x2=x;
+					y2=y;
+					code_q=compute(x2,y2);
+				}
+			}
+		
+		}while(!finish);
+}
+void viewport()
+{
+	glColor3f(1,0,0);
+	glBegin(GL_LINE_LOOP);
+		glVertex2i(xvmin,yvmin);
+		glVertex2i(xvmax,yvmin);
+		glVertex2i(xvmax,yvmax);
+		glVertex2i(xvmin,yvmax);
+	glEnd();
+}
+void line()
+{
+	glColor3f(0,0,1);
+	glBegin(GL_LINES);
+		glVertex2i(x1,y1);
+		glVertex2i(x2,y2);
+	glEnd();
+}
+void display()
+{
+		glClear(GL_COLOR_BUFFER_BIT);
+		viewport();
+		line();
+		cohen();
+		if(accept&&click)
+			line();
+		glFlush();
+}
+void main()
+{
+printf("Enter x1,y1,x2,y2\n");
+scanf("%f%f%f%f",&x1,&y1,&x2,&y2);
+glutInitDisplayMode(GLUT_SINGLE);
+glutInitWindowSize(600,600);
+glutCreateWindow("cohen line clipping");
+init();
+glutDisplayFunc(display);
+glutMouseFunc(mouse);
+glutMainLoop();
+}
